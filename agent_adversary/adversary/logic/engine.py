@@ -1,21 +1,12 @@
 from typing import List, Dict, Any, Optional
 import datetime
 import uuid
-from .jailbreak.library import ScenarioLibrary
-from ..evaluator.judge import JudgeModel, EvaluationResult
-from ..connectors.base import BaseConnector
-from ..observability.telemetry import TelemetryManager
-from ..observability.monitor import ResourceMonitor
-
-from pydantic import BaseModel
-
-class AdversarialScenario(BaseModel):
-    id: str
-    name: str
-    description: str = ""
-    category: str
-    prompts: List[str]
-    expected_failure_modes: List[str]
+from agent_adversary.adversary.schema import AdversarialScenario
+from agent_adversary.adversary.jailbreak.library import ScenarioLibrary
+from agent_adversary.evaluator.judge import JudgeModel, EvaluationResult
+from agent_adversary.connectors.base import BaseConnector
+from agent_adversary.observability.telemetry import TelemetryManager
+from agent_adversary.observability.monitor import ResourceMonitor
 
 class AdversaryEngine:
     def __init__(self, connector: BaseConnector, judge: JudgeModel, enable_telemetry: bool = True):

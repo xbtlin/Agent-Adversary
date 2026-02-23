@@ -13,7 +13,11 @@ dependencies = [
     "click",
     "tabulate",
     "pytest",
-    "python-dotenv"
+    "python-dotenv",
+    "playwright",
+    "fastapi",
+    "uvicorn",
+    "psutil"
 ]
 readme = "README.md"
 requires-python = ">=3.10"

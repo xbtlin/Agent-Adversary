@@ -1,7 +1,7 @@
 import base64
 import os
 from typing import Dict, Any, List, Optional
-from .base import BaseConnector
+from agent_adversary.connectors.base import BaseConnector
 
 class VLMConnector(BaseConnector):
     """

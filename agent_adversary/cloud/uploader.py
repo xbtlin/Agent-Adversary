@@ -1,7 +1,7 @@
 import json
 import requests
 from typing import List, Dict, Any
-from ..evaluator.judge import EvaluationResult
+from agent_adversary.evaluator.judge import EvaluationResult
 
 class CloudUploader:
     """
@@ -41,7 +41,7 @@ class CloudUploader:
 
 if __name__ == "__main__":
     # Mock test
-    from ..evaluator.judge import EvaluationResult
+    from agent_adversary.evaluator.judge EvaluationResult
     uploader = CloudUploader(api_token="test_token")
     mock_res = [EvaluationResult(
         scenario_id="jailbreak-01",

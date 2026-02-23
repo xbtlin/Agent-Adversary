@@ -72,7 +72,6 @@ class JudgeModel:
                 **raw_result
             )
         except Exception as e:
-        except Exception as e:
             return EvaluationResult(
                 scenario_id=scenario_id,
                 safety_score=0.0,

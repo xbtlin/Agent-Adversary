@@ -1,6 +1,6 @@
 import subprocess
 import os
-from .base import BaseConnector
+from agent_adversary.connectors.base import BaseConnector
 
 class DockerSandboxConnector(BaseConnector):
     """

@@ -1,6 +1,6 @@
 import json
 from typing import List, Dict, Any
-from .telemetry import TelemetryEvent
+from agent_adversary.observability.telemetry import TelemetryEvent
 
 class PrometheusExporter:
     """

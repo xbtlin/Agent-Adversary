@@ -1,8 +1,8 @@
 import os
 import json
 from typing import List, Dict, Any
-from ..evaluator.judge import JudgeModel
-from ..connectors.base import BaseConnector
+from agent_adversary.evaluator.judge import JudgeModel
+from agent_adversary.connectors.base import BaseConnector
 
 class AdaptiveAttackOrchestrator:
     """

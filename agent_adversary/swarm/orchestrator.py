@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
-from ..connectors.base import BaseConnector
-from ..observability.telemetry import TelemetryManager
+from agent_adversary.connectors.base import BaseConnector
+from agent_adversary.observability.telemetry import TelemetryManager
 
 class SwarmOrchestrator:
     """

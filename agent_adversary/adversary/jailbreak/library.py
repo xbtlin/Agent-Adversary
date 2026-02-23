@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional
 from pydantic import BaseModel
-from ..logic.engine import AdversarialScenario
+from agent_adversary.adversary.schema import AdversarialScenario
 
 class ScenarioLibrary:
     def __init__(self):

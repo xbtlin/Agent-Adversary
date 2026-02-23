@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from ..evaluator.judge import EvaluationResult
+from agent_adversary.evaluator.judge import EvaluationResult
 
 class MitigationAdvisor:
     """

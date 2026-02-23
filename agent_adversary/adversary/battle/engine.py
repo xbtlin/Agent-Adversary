@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
-from ...connectors.base import BaseConnector
-from ...evaluator.judge import JudgeModel, EvaluationResult
+from agent_adversary.connectors.base import BaseConnector
+from agent_adversary.evaluator.judge import JudgeModel, EvaluationResult
 
 class BattleRoyaleEngine:
     """

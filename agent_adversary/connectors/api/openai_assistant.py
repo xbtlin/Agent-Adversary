@@ -1,7 +1,7 @@
 import os
 import requests
 from typing import Dict, Any
-from ..base import BaseConnector
+from agent_adversary.connectors.base import BaseConnector
 
 class OpenAIAssistantConnector(BaseConnector):
     """

@@ -3,19 +3,19 @@ import asyncio
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from ..adversary.logic.engine import AdversaryEngine, BenchmarkReport
-from ..adversary.jailbreak.library import ScenarioLibrary
-from ..connectors.base import ShellConnector
-from ..connectors.browser import BrowserConnector
-from ..evaluator.judge import JudgeModel
-from ..patching.hotfix import LivePatcher
-from ..observability.exporters import PrometheusExporter
+from agent_adversary.adversary.logic.engine import AdversaryEngine, BenchmarkReport
+from agent_adversary.adversary.jailbreak.library import ScenarioLibrary
+from agent_adversary.connectors.base import ShellConnector
+from agent_adversary.connectors.browser import BrowserConnector
+from agent_adversary.evaluator.judge import JudgeModel
+from agent_adversary.patching.hotfix import LivePatcher
+from agent_adversary.observability.exporters import PrometheusExporter
 import os
 import json
 
-from ..adversary.generator import AutonomousGenerator
-from ..adversary.plugin_manager import ScenarioPluginManager
-from ..evaluator.professional_report import ProfessionalReportExporter
+from agent_adversary.adversary.generator import AutonomousGenerator
+from agent_adversary.adversary.plugin_manager import ScenarioPluginManager
+from agent_adversary.evaluator.professional_report import ProfessionalReportExporter
 
 console = Console()
 

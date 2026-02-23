@@ -2,7 +2,7 @@ import os
 import json
 from typing import List, Dict, Any
 from openai import OpenAI
-from ..evaluator.judge import JudgeModel
+from agent_adversary.evaluator.judge import JudgeModel
 
 class AutonomousGenerator:
     """

@@ -3,7 +3,7 @@ import yaml
 import json
 from typing import List, Dict, Any
 from pathlib import Path
-from .logic.engine import AdversarialScenario
+from agent_adversary.adversary.logic.engine import AdversarialScenario
 
 class ScenarioPluginManager:
     """

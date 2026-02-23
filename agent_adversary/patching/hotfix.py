@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
-from ..evaluator.advisor import MitigationAdvisor
-from ..evaluator.judge import EvaluationResult
+from agent_adversary.evaluator.advisor import MitigationAdvisor
+from agent_adversary.evaluator.judge import EvaluationResult
 
 class LivePatcher:
     """

@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from typing import List
-from .judge import EvaluationResult
+from agent_adversary.evaluator.judge import EvaluationResult
 
 class ProfessionalReportExporter:
     """

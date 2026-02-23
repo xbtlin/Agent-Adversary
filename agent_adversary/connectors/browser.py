@@ -3,7 +3,7 @@ import json
 import asyncio
 from typing import List, Dict, Optional
 from playwright.async_api import async_playwright
-from .base import BaseConnector
+from agent_adversary.connectors.base import BaseConnector
 
 class BrowserConnector(BaseConnector):
     """
