@@ -61,21 +61,32 @@ async def get_reasoning_graph(session_id: str):
         })
     return {"nodes": nodes, "links": [{"source": f"node_{i}", "target": f"node_{i+1}"} for i in range(len(nodes)-1)]}
 
-# Interactive Stepper State (In-memory mock)
-stepper_state = {"current_step": 0, "active": False}
+# Interactive Stepper State
+@app.post("/sessions/{session_id}/stepper/next")
+async def stepper_next(session_id: str):
+    """Signals the engine to proceed to the next turn."""
+    signal_file = Path(f"/tmp/stepper_{session_id}.json")
+    if not signal_file.exists():
+        raise HTTPException(status_code=404, detail="Active stepper session not found")
+    
+    with open(signal_file, "r") as f:
+        state = json.load(f)
+    
+    state["status"] = "resume"
+    with open(signal_file, "w") as f:
+        json.dump(state, f)
+    
+    return {"status": "resuming", "session_id": session_id, "turn": state["turn"]}
 
-@app.post("/stepper/start")
-async def start_stepper():
-    stepper_state["active"] = True
-    stepper_state["current_step"] = 0
-    return {"status": "Stepper activated"}
-
-@app.post("/stepper/next")
-async def next_step():
-    if not stepper_state["active"]:
-        raise HTTPException(status_code=400, detail="Stepper not active")
-    stepper_state["current_step"] += 1
-    return {"step": stepper_state["current_step"]}
+@app.get("/sessions/{session_id}/stepper/status")
+async def stepper_status(session_id: str):
+    """Checks the status of the interactive stepper."""
+    signal_file = Path(f"/tmp/stepper_{session_id}.json")
+    if not signal_file.exists():
+        return {"active": False}
+    
+    with open(signal_file, "r") as f:
+        return json.load(f)
 
 if __name__ == "__main__":
     import uvicorn

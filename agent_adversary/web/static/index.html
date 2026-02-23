@@ -186,13 +186,19 @@
 
         function setupControls() {
             document.getElementById('btn-stepper-start').onclick = async () => {
-                await fetch('/stepper/start', {method: 'POST'});
+                const sid = selectedSession || prompt("Enter Session ID to control:");
+                if (!sid) return;
+                // Stepper is controlled by the engine flags, 
+                // here we just enable the 'Next' button in the UI
                 document.getElementById('btn-stepper-next').disabled = false;
+                selectedSession = sid;
+                document.getElementById('current-session-id').innerText = sid;
             };
             document.getElementById('btn-stepper-next').onclick = async () => {
-                const res = await fetch('/stepper/next', {method: 'POST'});
+                if (!selectedSession) return;
+                const res = await fetch(`/sessions/${selectedSession}/stepper/next`, {method: 'POST'});
                 const data = await res.json();
-                alert("Research Action: Stepping to interaction turn #" + data.step);
+                console.log("Stepper resume signal sent for turn:", data.turn);
             };
         }
 

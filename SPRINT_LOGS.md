@@ -61,8 +61,10 @@
     - Implemented `ReasoningGraph` to capture and structure agent decision trees during attacks.
     - Built `HeatmapGenerator` to visualize system prompt vulnerabilities based on attack success rates.
     - Developed a sophisticated **X-Ray Dashboard UI** using **D3.js** for real-time reasoning chain visualization.
-    - Enhanced the Web Dashboard API with Graph export and interactive Stepper endpoints.
-- **Thought**: The project is now moving beyond "detecting" failures into "diagnosing" them. The D3-powered reasoning graph and prompt heatmap provide the analytical depth needed for enterprise-grade security auditing.
+    - Implemented **Interactive Red-Teaming Stepper** in `AdversaryEngine`, allowing manual step-through of attacks.
+    - Enhanced the Web Dashboard API with Graph export and real-time Stepper control endpoints.
+    - Verified interactive logic with `tests/test_stepper.py`.
+- **Thought**: The project is now moving beyond "detecting" failures into "diagnosing" and "debugging" them. The D3-powered reasoning graph and prompt heatmap provide the analytical depth needed for enterprise-grade security auditing.
     - Created a comprehensive `pytest` suite in `tests/` covering `engine`, `connectors`, `evaluator`, `generator`, `battle`, `observability`, `swarm`, `professional_report`, `consensus`, `security`, and `arena`.
     - Integrated `BattleReferee` into the `BattleRoyaleEngine` for automated outcome analysis.
     - Implemented `test_consensus.py` to verify multi-LLM evaluation logic.

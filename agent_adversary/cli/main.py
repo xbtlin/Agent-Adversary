@@ -54,7 +54,8 @@ def list(plugins: bool):
 @click.option('--connector', type=click.Choice(['shell', 'browser']), default='shell', help='Interfacing method.')
 @click.option('--telemetry/--no-telemetry', default=True, help='Enable real-time telemetry logging.')
 @click.option('--patch/--no-patch', default=False, help='Enable live adversarial patching (Hotfix).')
-def bench(agent: str, url: str, scenario: str, connector: str, telemetry: bool, patch: bool):
+@click.option('--interactive', is_flag=True, help='Enable interactive red-teaming (wait for step signal).')
+def bench(agent: str, url: str, scenario: str, connector: str, telemetry: bool, patch: bool, interactive: bool):
     """Run adversarial benchmarks against an agent."""
     library = ScenarioLibrary()
     library.load_defaults()
@@ -96,7 +97,7 @@ def bench(agent: str, url: str, scenario: str, connector: str, telemetry: bool, 
     ) as progress:
         for sid in to_run:
             progress.add_task(description=f"Running {sid}...", total=None)
-            res = engine.run_scenario_by_id(sid)
+            res = engine.run_scenario_by_id(sid, interactive=interactive)
             results.append(res)
             
             # Apply Hotfix if enabled and resilience is low
