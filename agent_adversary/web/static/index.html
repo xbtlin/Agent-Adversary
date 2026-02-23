@@ -79,10 +79,35 @@
 
     <script>
         let selectedSession = null;
+        let ws = null;
 
         async function init() {
             loadSessions();
             setupControls();
+            setupWebSocket();
+        }
+
+        function setupWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${window.location.host}/ws/telemetry`);
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log("Real-time telemetry event:", data);
+                if (selectedSession && data.session_id === selectedSession) {
+                    // Refresh graph/heatmap if event belongs to selected session
+                    loadGraph(selectedSession);
+                }
+                // Also trigger a session list reload if a new scenario starts
+                if (data.event_type === 'scenario_start') {
+                    loadSessions();
+                }
+            };
+
+            ws.onclose = () => {
+                console.log("WebSocket disconnected. Retrying in 5s...");
+                setTimeout(setupWebSocket, 5000);
+            };
         }
 
         async function loadSessions() {

@@ -1,8 +1,9 @@
-from fastapi import FastAPI, HTTPException
-from typing import List, Dict, Any
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from typing import List, Dict, Any, Set
 import os
 import json
 from pathlib import Path
+import asyncio
 
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -14,9 +15,113 @@ STATIC_DIR = Path(__file__).parent / "static"
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+# WebSocket Connection Manager
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Set[WebSocket] = set()
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.add(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+manager = ConnectionManager()
+
+# Distributed Hub Management
+active_workers = {}
+
+@app.websocket("/ws/worker")
+async def worker_websocket(websocket: WebSocket):
+    await websocket.accept()
+    worker_id = None
+    try:
+        while True:
+            data = await websocket.receive_text()
+            message = json.loads(data)
+            
+            if message["type"] == "registration":
+                worker_id = message["worker_id"]
+                active_workers[worker_id] = {
+                    "websocket": websocket,
+                    "name": message["name"],
+                    "os": message["os"],
+                    "status": "idle"
+                }
+                print(f"[*] Worker Registered: {message['name']} ({worker_id})")
+            
+            elif message["type"] == "task_result":
+                print(f"[*] Task result received from {worker_id}")
+                # Logic to store result
+                active_workers[worker_id]["status"] = "idle"
+                
+    except WebSocketDisconnect:
+        if worker_id:
+            del active_workers[worker_id]
+            print(f"[*] Worker Disconnected: {worker_id}")
+
+# Leaderboard Data (Mock)
+reliability_data = [
+    {"agent": "GPT-4o", "resilience": 0.92, "community_rank": 1},
+    {"agent": "Claude 3.5 Sonnet", "resilience": 0.89, "community_rank": 2},
+    {"agent": "Llama 3 70B", "resilience": 0.78, "community_rank": 3},
+    {"agent": "DeepSeek-V3", "resilience": 0.85, "community_rank": 4}
+]
+
+@app.get("/leaderboard")
+async def get_leaderboard():
+    return sorted(reliability_data, key=lambda x: x["resilience"], reverse=True)
+
+@app.get("/workers")
+async def list_workers():
+    return [
+        {"id": wid, "name": info["name"], "status": info["status"], "os": info["os"]}
+        for wid, info in active_workers.items()
+    ]
+
+@app.post("/tasks/dispatch")
+async def dispatch_task(task: Dict[str, Any]):
+    """Dispatches a benchmark task to an idle worker."""
+    idle_workers = [wid for wid, info in active_workers.items() if info["status"] == "idle"]
+    if not idle_workers:
+        raise HTTPException(status_code=503, detail="No idle workers available")
+    
+    target_worker = idle_workers[0]
+    active_workers[target_worker]["status"] = "busy"
+    
+    task_msg = {
+        "type": "bench_task",
+        "task_id": str(uuid.uuid4()),
+        **task
+    }
+    
+    await active_workers[target_worker]["websocket"].send_text(json.dumps(task_msg))
+    return {"status": "dispatched", "worker_id": target_worker, "task_id": task_msg["task_id"]}
+
 @app.get("/")
 async def root():
     return FileResponse(STATIC_DIR / "index.html")
+
+@app.websocket("/ws/telemetry")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            # Keep connection alive
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
+@app.post("/telemetry/event")
+async def receive_event(event: Dict[str, Any]):
+    """Receives an event from the engine and broadcasts it via WebSocket."""
+    await manager.broadcast(json.dumps(event))
+    return {"status": "broadcasted"}
 
 @app.get("/sessions")
 async def list_sessions():
@@ -46,6 +151,9 @@ async def get_session_details(session_id: str):
             events.append(json.loads(line))
     return events
 
+from agent_adversary.evaluator.profiler import DecisionProfiler
+from agent_adversary.evaluator.judge import JudgeModel
+
 @app.get("/sessions/{session_id}/graph")
 async def get_reasoning_graph(session_id: str):
     """Generates a graph structure from session telemetry."""
@@ -60,6 +168,13 @@ async def get_reasoning_graph(session_id: str):
             "data": ev["data"]
         })
     return {"nodes": nodes, "links": [{"source": f"node_{i}", "target": f"node_{i+1}"} for i in range(len(nodes)-1)]}
+
+@app.get("/sessions/{session_id}/profile")
+async def profile_session(session_id: str):
+    """Generates a vulnerability profile for the session."""
+    events = await get_session_details(session_id)
+    profiler = DecisionProfiler(JudgeModel())
+    return profiler.profile_session(events)
 
 # Interactive Stepper State
 @app.post("/sessions/{session_id}/stepper/next")

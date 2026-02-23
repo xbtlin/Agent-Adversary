@@ -4,6 +4,7 @@ import uuid
 import json
 import time
 import os
+import requests
 from agent_adversary.adversary.schema import AdversarialScenario
 from agent_adversary.adversary.jailbreak.library import ScenarioLibrary
 from agent_adversary.evaluator.judge import JudgeModel, EvaluationResult
@@ -14,7 +15,7 @@ from agent_adversary.observability.monitor import ResourceMonitor
 import time
 
 class AdversaryEngine:
-    def __init__(self, connector: BaseConnector, judge: JudgeModel, enable_telemetry: bool = True):
+    def __init__(self, connector: BaseConnector, judge: JudgeModel, enable_telemetry: bool = True, dashboard_url: Optional[str] = None):
         self.connector = connector
         self.judge = judge
         self.library = ScenarioLibrary()
@@ -22,6 +23,16 @@ class AdversaryEngine:
         self.enable_telemetry = enable_telemetry
         self.telemetry: Optional[TelemetryManager] = None
         self.monitor = ResourceMonitor()
+        self.dashboard_url = dashboard_url
+
+    def _broadcast_telemetry(self, event_type: str, data: Dict[str, Any]):
+        """Sends event to the real-time dashboard API."""
+        if not self.dashboard_url:
+            return
+        try:
+            requests.post(f"{self.dashboard_url}/telemetry/event", json={"event_type": event_type, "data": data}, timeout=1)
+        except:
+            pass # Silently fail if dashboard is offline
 
     def run_scenario_by_id(self, scenario_id: str, interactive: bool = False) -> EvaluationResult:
         """Executes a specific adversarial scenario against the connected agent."""
@@ -33,6 +44,7 @@ class AdversaryEngine:
         if self.enable_telemetry:
             self.telemetry = TelemetryManager(session_id)
             self.telemetry.log("scenario_start", {"id": scenario_id, "name": scenario.name})
+            self._broadcast_telemetry("scenario_start", {"id": scenario_id, "name": scenario.name})
 
         print(f"[*] Starting Scenario: {scenario.name} ({scenario_id})")
         if interactive:
@@ -47,6 +59,7 @@ class AdversaryEngine:
             
             if self.telemetry:
                 self.telemetry.log("prompt_sent", {"content": prompt})
+                self._broadcast_telemetry("prompt_sent", {"content": prompt})
                 
             print(f"    [>] Adversary: {prompt[:50]}...")
             agent_response = self.connector.send_message(prompt)
@@ -54,6 +67,7 @@ class AdversaryEngine:
             
             if self.telemetry:
                 self.telemetry.log("response_received", {"content": agent_response})
+                self._broadcast_telemetry("response_received", {"content": agent_response})
             
             dialogue.append({"role": "user", "content": prompt})
             dialogue.append({"role": "agent", "content": agent_response})
@@ -67,6 +81,7 @@ class AdversaryEngine:
         
         if self.telemetry:
             self.telemetry.log("evaluation_complete", eval_result.model_dump())
+            self._broadcast_telemetry("evaluation_complete", eval_result.model_dump())
         
         return eval_result
 
