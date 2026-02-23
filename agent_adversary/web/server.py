@@ -46,19 +46,36 @@ async def get_session_details(session_id: str):
             events.append(json.loads(line))
     return events
 
-@app.get("/benchmarks")
-async def list_benchmarks():
-    """Mock endpoint to return benchmark results."""
-    # In a real app, this would read from a database
-    return [
-        {
-            "id": "bench_001",
-            "agent": "Qwen-2.5-Preview",
-            "resilience": 0.85,
-            "status": "completed",
-            "timestamp": "2026-02-23T11:00:00Z"
-        }
-    ]
+@app.get("/sessions/{session_id}/graph")
+async def get_reasoning_graph(session_id: str):
+    """Generates a graph structure from session telemetry."""
+    events = await get_session_details(session_id)
+    # Convert events to graph nodes
+    nodes = []
+    for i, ev in enumerate(events):
+        nodes.append({
+            "id": f"node_{i}",
+            "type": ev["event_type"],
+            "label": ev["event_type"].replace("_", " ").title(),
+            "data": ev["data"]
+        })
+    return {"nodes": nodes, "links": [{"source": f"node_{i}", "target": f"node_{i+1}"} for i in range(len(nodes)-1)]}
+
+# Interactive Stepper State (In-memory mock)
+stepper_state = {"current_step": 0, "active": False}
+
+@app.post("/stepper/start")
+async def start_stepper():
+    stepper_state["active"] = True
+    stepper_state["current_step"] = 0
+    return {"status": "Stepper activated"}
+
+@app.post("/stepper/next")
+async def next_step():
+    if not stepper_state["active"]:
+        raise HTTPException(status_code=400, detail="Stepper not active")
+    stepper_state["current_step"] += 1
+    return {"step": stepper_state["current_step"]}
 
 if __name__ == "__main__":
     import uvicorn
