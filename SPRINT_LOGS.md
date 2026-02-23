@@ -60,8 +60,8 @@
     - Integrated `BattleReferee` into the `BattleRoyaleEngine` for automated outcome analysis.
     - Implemented `test_consensus.py` to verify multi-LLM evaluation logic.
     - Developed `CommandSanitizer` to harden the framework against command injection in connectors.
-    - Built native connectors for **OpenClaw** and **Claude Code** to enable deep framework integration.
-    - Fixed issues in test logic and framework stability; verified all 24 tests passing.
+    - Built native connectors for **OpenClaw**, **Claude Code**, and **Anthropic Computer Use** to enable deep framework integration.
+    - Fixed issues in test logic and framework stability; verified all 25 tests passing.
     - Developed framework integration templates for mainstream agent developers.
 - **Thought**: Stability and ease of integration are the last hurdles for wide-scale adoption. Phase 7 is addressing both by solidifying the core and lowering the entry barrier.
 - **Planned**: Final review of Phase 7 milestones and prepare for public release of the enhanced framework.
