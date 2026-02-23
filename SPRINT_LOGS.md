@@ -56,8 +56,8 @@
     - Integrated Phase 6 features into the CLI (`audit` and `plugins` flag).
 - **(Phase 7 Started)**:
     - Initiated `PHASE_7_PLAN.md` for formal testing and resilience.
-    - Created a comprehensive `pytest` suite in `tests/` covering `engine`, `connectors`, `evaluator`, `generator`, and `battle`.
-    - Fixed issues in test logic and verified all 8 initial tests passing.
+    - Created a comprehensive `pytest` suite in `tests/` covering `engine`, `connectors`, `evaluator`, `generator`, `battle`, `observability`, and `swarm`.
+    - Fixed issues in test logic and verified all 12 initial tests passing.
     - Developed framework integration templates for **OpenClaw** and **Claude Code**, enabling rapid adoption for mainstream agent developers.
 - **Thought**: Stability and ease of integration are the last hurdles for wide-scale adoption. Phase 7 is addressing both by solidifying the core and lowering the entry barrier.
 - **Planned**: Complete the test suite and create templates for OpenClaw/Claude Code integration.
