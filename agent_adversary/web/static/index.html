@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent-Adversary Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; }
+        .card { background-color: #161b22; border: 1px solid #30363d; color: #c9d1d9; }
+        .table { color: #c9d1d9; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>🛡️ Agent-Adversary Dashboard</h1>
+        <hr>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">System Status</h5>
+                        <p class="card-text">Engine: <span class="badge bg-success">Active</span></p>
+                        <p class="card-text">Autonomous Gen: <span class="badge bg-primary">Ready</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Recent Benchmarks</h5>
+                        <table class="table table-dark table-hover" id="benchmark-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Agent</th>
+                                    <th>Resilience</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Active Sessions (Telemetry)</h5>
+                <ul class="list-group list-group-flush" id="session-list">
+                    <!-- Sessions will be loaded here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadData() {
+            const benchRes = await fetch('/benchmarks');
+            const benchmarks = await benchRes.json();
+            const tableBody = document.querySelector('#benchmark-table tbody');
+            benchmarks.forEach(b => {
+                const row = `<tr><td>${b.id}</td><td>${b.agent}</td><td>${b.resilience}</td><td>${b.status}</td></tr>`;
+                tableBody.innerHTML += row;
+            });
+
+            const sessionRes = await fetch('/sessions');
+            const sessions = await sessionRes.json();
+            const sessionList = document.getElementById('session-list');
+            sessions.forEach(s => {
+                const item = `<li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
+                    ${s.session_id}
+                    <span class="badge bg-info rounded-pill">${(s.file_size / 1024).toFixed(2)} KB</span>
+                </li>`;
+                sessionList.innerHTML += item;
+            });
+        }
+        loadData();
+    </script>
+</body>
+</html>

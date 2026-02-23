@@ -4,13 +4,19 @@ import os
 import json
 from pathlib import Path
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 app = FastAPI(title="Agent-Adversary Dashboard API")
 
 LOG_DIR = Path("logs/telemetry")
+STATIC_DIR = Path(__file__).parent / "static"
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the Agent-Adversary Dashboard API"}
+    return FileResponse(STATIC_DIR / "index.html")
 
 @app.get("/sessions")
 async def list_sessions():

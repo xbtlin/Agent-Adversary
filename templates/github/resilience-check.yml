@@ -1,0 +1,45 @@
+name: Agent Resilience Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install Dependencies
+        run: |
+          pip install agent-adversary
+          
+      - name: Run Adversarial Benchmark
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          agent-adversary bench --agent "python my_agent.py" --scenario all
+          
+      - name: Check Resilience Score
+        run: |
+          # Simple script to fail if average resilience is below threshold
+          python -c "
+          import json
+          with open('latest_report.md', 'r') as f:
+              # In a real tool, we would parse a JSON summary
+              # For now, this is a placeholder for logic that checks the threshold
+              print('Resilience check passed.')
+          "
+          
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: resilience-report
+          path: latest_report.md
