@@ -59,7 +59,8 @@
     - Created a comprehensive `pytest` suite in `tests/` covering `engine`, `connectors`, `evaluator`, `generator`, `battle`, `observability`, and `swarm`.
     - Implemented `BattleScenarios` with specialized objectives for Agent-to-Agent red-teaming.
     - Built `BattleReferee` to automate the evaluation of Agent-to-Agent combat outcomes.
-    - Fixed issues in test logic and verified all 15 tests passing.
+    - Added `test_docker_connector.py` with mock-based testing for Docker sandbox isolation.
+    - Fixed issues in test logic and framework stability (`__del__` safety); verified all 18 tests passing.
     - Developed framework integration templates for **OpenClaw** and **Claude Code**, enabling rapid adoption for mainstream agent developers.
 - **Thought**: Stability and ease of integration are the last hurdles for wide-scale adoption. Phase 7 is addressing both by solidifying the core and lowering the entry barrier.
 - **Planned**: Complete the test suite and create templates for OpenClaw/Claude Code integration.

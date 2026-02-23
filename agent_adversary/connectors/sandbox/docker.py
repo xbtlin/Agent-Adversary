@@ -37,7 +37,10 @@ class DockerSandboxConnector(BaseConnector):
     def stop(self):
         """Kills and removes the container."""
         if self.container_id:
-            subprocess.run(["docker", "rm", "-f", self.container_id], check=True)
+            try:
+                subprocess.run(["docker", "rm", "-f", self.container_id], check=True, capture_output=True)
+            except Exception as e:
+                print(f"[!] Failed to stop container {self.container_id}: {e}")
             self.container_id = None
             print("[*] Sandbox destroyed.")
 
