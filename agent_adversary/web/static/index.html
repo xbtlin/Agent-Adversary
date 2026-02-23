@@ -29,8 +29,22 @@
 
     <div class="container-fluid px-4">
         <div class="row">
-            <!-- Sidebar: Sessions -->
+            <!-- Sidebar: Sessions, Workers, Leaderboard -->
             <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header border-secondary">🏆 Global Reliability Leaderboard</div>
+                    <div class="list-group list-group-flush" id="leaderboard-list">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header border-secondary">👷 Active Worker Nodes</div>
+                    <div class="list-group list-group-flush" id="worker-list">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+
                 <div class="card">
                     <div class="card-header border-secondary">📡 Historical Telemetry</div>
                     <div class="list-group list-group-flush" id="session-list" style="max-height: 400px; overflow-y: auto;">
@@ -83,8 +97,45 @@
 
         async function init() {
             loadSessions();
+            loadWorkers();
+            loadLeaderboard();
             setupControls();
             setupWebSocket();
+            
+            // Poll for dynamic updates
+            setInterval(loadWorkers, 5000);
+            setInterval(loadLeaderboard, 10000);
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const res = await fetch('/leaderboard');
+                const data = await res.json();
+                const list = document.getElementById('leaderboard-list');
+                list.innerHTML = '';
+                data.forEach((entry, i) => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item bg-transparent text-light border-secondary d-flex justify-content-between';
+                    item.innerHTML = `<span>${i+1}. ${entry.agent}</span><span class="badge bg-primary">${(entry.resilience * 100).toFixed(1)}%</span>`;
+                    list.appendChild(item);
+                });
+            } catch(e) {}
+        }
+
+        async function loadWorkers() {
+            try {
+                const res = await fetch('/workers');
+                const workers = await res.json();
+                const list = document.getElementById('worker-list');
+                list.innerHTML = '';
+                workers.forEach(w => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item bg-transparent text-light border-secondary';
+                    const statusClass = w.status === 'idle' ? 'bg-success' : 'bg-warning';
+                    item.innerHTML = `<div>${w.name} <span class="badge ${statusClass}">${w.status}</span></div><small class="text-muted">${w.os}</small>`;
+                    list.appendChild(item);
+                });
+            } catch(e) {}
         }
 
         function setupWebSocket() {

@@ -57,7 +57,25 @@ async def worker_websocket(websocket: WebSocket):
             
             elif message["type"] == "task_result":
                 print(f"[*] Task result received from {worker_id}")
-                # Logic to store result
+                # Logic to store result and update leaderboard
+                result_data = message["result"]
+                agent_name = message.get("agent_name", "Unknown Agent")
+                
+                # Update mock leaderboard logic
+                found = False
+                for entry in reliability_data:
+                    if entry["agent"] == agent_name:
+                        # Simple moving average for mock resilience
+                        entry["resilience"] = (entry["resilience"] + result_data["total_resilience"]) / 2
+                        found = True
+                        break
+                if not found:
+                    reliability_data.append({
+                        "agent": agent_name,
+                        "resilience": result_data["total_resilience"],
+                        "community_rank": len(reliability_data) + 1
+                    })
+                
                 active_workers[worker_id]["status"] = "idle"
                 
     except WebSocketDisconnect:
