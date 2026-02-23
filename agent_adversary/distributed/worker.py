@@ -16,7 +16,17 @@ class AdversaryWorker:
         self.hub_url = hub_url
         self.worker_id = str(uuid.uuid4())
         self.name = name or f"worker-{self.worker_id[:8]}"
-        self.os_info = f"{platform.system()} {platform.release()}"
+        self.fingerprint = self._get_fingerprint()
+
+    def _get_fingerprint(self) -> Dict[str, str]:
+        """Captures hardware and software environment details."""
+        return {
+            "os": platform.system(),
+            "os_release": platform.release(),
+            "python_version": platform.python_version(),
+            "architecture": platform.machine(),
+            "processor": platform.processor()
+        }
 
     async def run(self):
         print(f"[*] Starting Worker: {self.name} ({self.worker_id})")
@@ -29,7 +39,7 @@ class AdversaryWorker:
                     "type": "registration",
                     "worker_id": self.worker_id,
                     "name": self.name,
-                    "os": self.os_info
+                    "fingerprint": self.fingerprint
                 }
                 await websocket.send(json.dumps(registration))
                 

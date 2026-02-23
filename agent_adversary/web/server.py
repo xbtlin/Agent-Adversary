@@ -50,7 +50,7 @@ async def worker_websocket(websocket: WebSocket):
                 active_workers[worker_id] = {
                     "websocket": websocket,
                     "name": message["name"],
-                    "os": message["os"],
+                    "fingerprint": message["fingerprint"],
                     "status": "idle"
                 }
                 print(f"[*] Worker Registered: {message['name']} ({worker_id})")
@@ -98,7 +98,7 @@ async def get_leaderboard():
 @app.get("/workers")
 async def list_workers():
     return [
-        {"id": wid, "name": info["name"], "status": info["status"], "os": info["os"]}
+        {"id": wid, "name": info["name"], "status": info["status"], "fingerprint": info["fingerprint"]}
         for wid, info in active_workers.items()
     ]
 

@@ -132,7 +132,8 @@
                     const item = document.createElement('div');
                     item.className = 'list-group-item bg-transparent text-light border-secondary';
                     const statusClass = w.status === 'idle' ? 'bg-success' : 'bg-warning';
-                    item.innerHTML = `<div>${w.name} <span class="badge ${statusClass}">${w.status}</span></div><small class="text-muted">${w.os}</small>`;
+                    const fp = w.fingerprint;
+                    item.innerHTML = `<div>${w.name} <span class="badge ${statusClass}">${w.status}</span></div><small class="text-muted">${fp.os} ${fp.os_release} (${fp.architecture})</small>`;
                     list.appendChild(item);
                 });
             } catch(e) {}
