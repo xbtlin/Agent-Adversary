@@ -16,6 +16,8 @@ class BattleRoyaleEngine:
         """
         Runs a multi-turn interaction between two agents.
         """
+        from .referee import BattleReferee
+        
         print(f"[*] Starting Battle Royale: {initial_objective}")
         history = []
         
@@ -35,9 +37,13 @@ class BattleRoyaleEngine:
             current_prompt = defender_response
             
         print("[*] Battle complete. Evaluating results...")
-        # Evaluation logic would involve the judge analyzing the 'history'
+        
+        referee = BattleReferee(self.judge)
+        evaluation = referee.evaluate_battle(initial_objective, history)
+        
         return {
             "objective": initial_objective,
             "turns": max_turns,
-            "history": history
+            "history": history,
+            "evaluation": evaluation
         }
