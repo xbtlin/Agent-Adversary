@@ -14,6 +14,8 @@ import os
 import json
 
 from ..adversary.generator import AutonomousGenerator
+from ..adversary.plugin_manager import ScenarioPluginManager
+from ..evaluator.professional_report import ProfessionalReportExporter
 
 console = Console()
 
@@ -23,10 +25,17 @@ def main():
     pass
 
 @main.command()
-def list():
+@click.option('--plugins', is_flag=True, help='Include scenarios from the plugins directory.')
+def list(plugins: bool):
     """List all available adversarial scenarios."""
     library = ScenarioLibrary()
     library.load_defaults()
+    
+    if plugins:
+        pm = ScenarioPluginManager()
+        ext_scenarios = pm.load_plugins()
+        for s in ext_scenarios:
+            library.add_scenario(s)
     
     table = Table(title="Available Adversarial Scenarios")
     table.add_column("ID", style="cyan")
@@ -159,6 +168,18 @@ def generate(description: str, count: int):
     
     console.print(table)
     console.print("\n[bold]Run with:[/bold] `agent-adversary bench --scenario <id>`")
+
+@main.command()
+@click.option('--report', required=True, help='Path to the Markdown report to convert.')
+@click.option('--agent', required=True, help='Name of the agent.')
+@click.option('--output', default='audit_report.html', help='Path to the HTML output.')
+def audit(report: str, agent: str, output: str):
+    """Generate a professional HTML security audit report from benchmark results."""
+    # This is a simplified version. In a real tool, it would parse the markdown or a result JSON.
+    # For now, we'll mock the result list to demonstrate the exporter.
+    results = [] 
+    ProfessionalReportExporter.export_html(results, agent, output)
+    console.print(f"Professional audit report generated: [bold]{output}[/bold]")
 
 if __name__ == "__main__":
     main()
