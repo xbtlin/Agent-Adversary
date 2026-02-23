@@ -1,0 +1,26 @@
+[project]
+name = "agent-adversary"
+version = "0.1.0"
+description = "A production-ready framework for adversarial testing and reliability benchmarking of Agentic AI."
+authors = [
+    {name = "Antigravity", email = "antigravity@openclaw.local"}
+]
+dependencies = [
+    "rich",
+    "openai",
+    "anthropic",
+    "pydantic",
+    "click",
+    "tabulate",
+    "pytest",
+    "python-dotenv"
+]
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.scripts]
+adversary = "agent_adversary.cli.main:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build-meta"

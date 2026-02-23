@@ -1,0 +1,15 @@
+<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="200" rx="10" fill="#1E1E1E"/>
+  <path d="M50 150L100 120L150 140L200 80L250 100L300 40L350 60" stroke="#FFD700" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="50" cy="150" r="4" fill="#FFD700"/>
+  <circle cx="100" cy="120" r="4" fill="#FFD700"/>
+  <circle cx="150" cy="140" r="4" fill="#FFD700"/>
+  <circle cx="200" cy="80" r="4" fill="#FFD700"/>
+  <circle cx="250" cy="100" r="4" fill="#FFD700"/>
+  <circle cx="300" cy="40" r="4" fill="#FFD700"/>
+  <circle cx="350" cy="60" r="4" fill="#FFD700"/>
+  <text x="20" y="30" fill="white" font-family="Arial" font-size="14" font-weight="bold">Agent Resilience Benchmark (2026)</text>
+  <text x="50" y="170" fill="#888" font-family="Arial" font-size="10">Q1</text>
+  <text x="200" y="170" fill="#888" font-family="Arial" font-size="10">Q2</text>
+  <text x="350" y="170" fill="#888" font-family="Arial" font-size="10">Q3</text>
+</svg>
