@@ -16,6 +16,14 @@
         - Published `GALLERY.md` showcasing real-world logic traps.
         - Updated `README.md` with high-quality SVG architecture diagrams and full Phase 2 capabilities.
         - Finalized code documentation and created a sample report for demonstration.
+- **(Massive Update - Phases 10-15)**:
+    - **Enterprise Governance**: Implemented HMAC-SHA256 payload signing, Audit Logging, and Admin Auth.
+    - **Multi-Modal Vision**: Launched `MultiModalAdversaryEngine` with OCR, Visual Injection, and UI redirection scenarios.
+    - **Swarm Resilience**: Expanded to Byzantine Agent Sabotage and Cross-Agent Injection Leak testing.
+    - **Advanced Reporting**: Integrated `MitigationAdvisor` directly into Professional HTML Reports.
+    - **Live Patching**: Finalized `LivePatcher` with real-time prompt overlays and input filtering.
+    - **Observability**: Added Reasoning Graph pruning, CSV exports, and Knowledge Base vulnerability heatmaps.
+    - **Distributed Analytics**: Implemented cross-agent comparison and automated global leaderboard generation.
 - **Thought**: The project has reached its technical maturity. It covers CLI, Web, and logic-based testing—a unique niche in the AI agent market.
 - **(Phase 3 Complete)**:
     - Implemented initial `DockerSandboxConnector` for secure, isolated agent testing.
