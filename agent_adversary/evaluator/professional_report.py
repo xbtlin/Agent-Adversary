@@ -3,6 +3,8 @@ from datetime import datetime
 from typing import List
 from agent_adversary.evaluator.judge import EvaluationResult
 
+from agent_adversary.evaluator.advisor import MitigationAdvisor
+
 class ProfessionalReportExporter:
     """
     Exports benchmark results into professional, branded HTML reports.
@@ -36,6 +38,7 @@ class ProfessionalReportExporter:
                 .warning {{ background: #d29922; color: black; }}
                 .success {{ background: #238636; color: white; }}
                 .reasoning {{ background: #010409; padding: 15px; border-radius: 5px; margin-top: 10px; font-style: italic; }}
+                .mitigation {{ border-left: 4px solid #1f6feb; padding: 10px 20px; margin-top: 15px; background: #111b27; }}
             </style>
         </head>
         <body>
@@ -83,15 +86,24 @@ class ProfessionalReportExporter:
                     </tbody>
                 </table>
 
-                <h2 style="margin-top: 50px;">Detailed Findings</h2>
+                <h2 style="margin-top: 50px;">Detailed Findings & Recommendations</h2>
         """
 
         for r in results:
+            recommendations = MitigationAdvisor.suggest_fixes(r)
+            rec_html = ""
+            if recommendations:
+                rec_html = '<div class="mitigation"><strong>🛡️ Recommended Mitigations:</strong><ul>'
+                for rec in recommendations:
+                    rec_html += f"<li><strong>{rec['type']}</strong>: {rec['action']}</li>"
+                rec_html += "</ul></div>"
+
             html_content += f"""
-                <div style="margin-bottom: 30px;">
+                <div style="margin-bottom: 50px; border-bottom: 1px dashed #30363d; padding-bottom: 20px;">
                     <h3>{r.scenario_id}</h3>
                     <p><strong>Detected Failures:</strong> {", ".join(r.failure_modes_detected) if r.failure_modes_detected else "None"}</p>
                     <div class="reasoning">"{r.judge_reasoning}"</div>
+                    {rec_html}
                 </div>
             """
 

@@ -8,15 +8,19 @@ from ..adversary.logic.engine import AdversaryEngine
 from ..connectors.base import ShellConnector
 from ..evaluator.judge import JudgeModel
 
+from ..security.utils import SecurityUtils
+import os
+
 class AdversaryWorker:
     """
     A worker node that connects to a central hub and executes attack tasks.
     """
-    def __init__(self, hub_url: str, name: str = None):
+    def __init__(self, hub_url: str, name: str = None, secret: str = None):
         self.hub_url = hub_url
         self.worker_id = str(uuid.uuid4())
         self.name = name or f"worker-{self.worker_id[:8]}"
         self.fingerprint = self._get_fingerprint()
+        self.secret = secret or os.getenv("HUB_SECRET", "agent-adversary-secret-2026")
 
     def _get_fingerprint(self) -> Dict[str, str]:
         """Captures hardware and software environment details."""
@@ -32,31 +36,44 @@ class AdversaryWorker:
         print(f"[*] Starting Worker: {self.name} ({self.worker_id})")
         print(f"[*] Connecting to Hub: {self.hub_url}")
         
-        async for websocket in websockets.connect(f"{self.hub_url}/ws/worker"):
+        while True:
             try:
-                # 1. Register with Hub
-                registration = {
-                    "type": "registration",
-                    "worker_id": self.worker_id,
-                    "name": self.name,
-                    "fingerprint": self.fingerprint
-                }
-                await websocket.send(json.dumps(registration))
-                
-                # 2. Listen for Tasks
-                async for message in websocket:
-                    task = json.loads(message)
-                    if task["type"] == "bench_task":
-                        print(f"[*] Received Task: {task['scenario_id']} for agent '{task['agent_command']}'")
-                        result = await self.execute_task(task)
-                        await websocket.send(json.dumps({
-                            "type": "task_result",
-                            "task_id": task["task_id"],
-                            "result": result.model_dump()
-                        }))
-            except websockets.ConnectionClosed:
-                print("[!] Connection closed. Retrying...")
-                continue
+                async with websockets.connect(f"{self.hub_url}/ws/worker") as websocket:
+                    # 1. Register with Hub
+                    registration = {
+                        "type": "registration",
+                        "worker_id": self.worker_id,
+                        "name": self.name,
+                        "fingerprint": self.fingerprint
+                    }
+                    await websocket.send(json.dumps(registration))
+                    
+                    # 2. Listen for Tasks
+                    async for message in websocket:
+                        data = json.loads(message)
+                        
+                        # Verify signature for secure task execution
+                        if "payload" in data and "signature" in data:
+                            payload = data["payload"]
+                            signature = data["signature"]
+                            payload_str = json.dumps(payload, sort_keys=True)
+                            
+                            if SecurityUtils.verify_signature(payload_str, signature, self.secret):
+                                if payload["type"] == "bench_task":
+                                    print(f"[*] [SECURE] Received Signed Task: {payload['scenario_id']}")
+                                    result = await self.execute_task(payload)
+                                    await websocket.send(json.dumps({
+                                        "type": "task_result",
+                                        "task_id": payload["task_id"],
+                                        "result": result.model_dump()
+                                    }))
+                            else:
+                                print("[!] [SECURITY] Signature verification failed! Rejecting task.")
+                        else:
+                            print("[!] [WARNING] Received unsigned message from hub.")
+            except (websockets.ConnectionClosed, ConnectionRefusedError, Exception) as e:
+                print(f"[!] Connection error: {e}. Retrying in 5s...")
+                await asyncio.sleep(5)
 
     async def execute_task(self, task: Dict[str, Any]):
         # Mocking the execution logic

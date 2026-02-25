@@ -25,12 +25,18 @@ class AdversaryEngine:
         self.monitor = ResourceMonitor()
         self.dashboard_url = dashboard_url
 
-    def _broadcast_telemetry(self, event_type: str, data: Dict[str, Any]):
+    def _broadcast_telemetry(self, event_type: str, data: Dict[str, Any], session_id: Optional[str] = None):
         """Sends event to the real-time dashboard API."""
         if not self.dashboard_url:
             return
         try:
-            requests.post(f"{self.dashboard_url}/telemetry/event", json={"event_type": event_type, "data": data}, timeout=1)
+            payload = {
+                "event_type": event_type, 
+                "data": data, 
+                "session_id": session_id or (self.telemetry.session_id if self.telemetry else None),
+                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+            }
+            requests.post(f"{self.dashboard_url}/telemetry/event", json=payload, timeout=1)
         except:
             pass # Silently fail if dashboard is offline
 
@@ -44,7 +50,7 @@ class AdversaryEngine:
         if self.enable_telemetry:
             self.telemetry = TelemetryManager(session_id)
             self.telemetry.log("scenario_start", {"id": scenario_id, "name": scenario.name})
-            self._broadcast_telemetry("scenario_start", {"id": scenario_id, "name": scenario.name})
+            self._broadcast_telemetry("scenario_start", {"id": scenario_id, "name": scenario.name}, session_id=session_id)
 
         print(f"[*] Starting Scenario: {scenario.name} ({scenario_id})")
         if interactive:
@@ -55,11 +61,11 @@ class AdversaryEngine:
 
         for turn, prompt in enumerate(scenario.prompts):
             if interactive:
-                self._wait_for_stepper(session_id, turn)
+                prompt = self._wait_for_stepper(session_id, turn, prompt)
             
             if self.telemetry:
                 self.telemetry.log("prompt_sent", {"content": prompt})
-                self._broadcast_telemetry("prompt_sent", {"content": prompt})
+                self._broadcast_telemetry("prompt_sent", {"content": prompt}, session_id=session_id)
                 
             print(f"    [>] Adversary: {prompt[:50]}...")
             agent_response = self.connector.send_message(prompt)
@@ -67,7 +73,7 @@ class AdversaryEngine:
             
             if self.telemetry:
                 self.telemetry.log("response_received", {"content": agent_response})
-                self._broadcast_telemetry("response_received", {"content": agent_response})
+                self._broadcast_telemetry("response_received", {"content": agent_response}, session_id=session_id)
             
             dialogue.append({"role": "user", "content": prompt})
             dialogue.append({"role": "agent", "content": agent_response})
@@ -81,24 +87,31 @@ class AdversaryEngine:
         
         if self.telemetry:
             self.telemetry.log("evaluation_complete", eval_result.model_dump())
-            self._broadcast_telemetry("evaluation_complete", eval_result.model_dump())
+            self._broadcast_telemetry("evaluation_complete", eval_result.model_dump(), session_id=session_id)
         
         return eval_result
 
-    def _wait_for_stepper(self, session_id: str, turn: int):
-        """Pauses execution until a signal is received from the UI/API."""
+    def _wait_for_stepper(self, session_id: str, turn: int, current_prompt: str) -> str:
+        """Pauses execution until a signal is received from the UI/API. Returns (potentially modified) prompt."""
         signal_file = f"/tmp/stepper_{session_id}.json"
         
-        # Initial state
+        # Initial state including the current prompt to be edited
         with open(signal_file, "w") as f:
-            json.dump({"session_id": session_id, "turn": turn, "status": "paused"}, f)
+            json.dump({
+                "session_id": session_id, 
+                "turn": turn, 
+                "status": "paused",
+                "current_prompt": current_prompt
+            }, f)
 
+        modified_prompt = current_prompt
         while True:
             if os.path.exists(signal_file):
                 with open(signal_file, "r") as f:
                     try:
                         state = json.load(f)
                         if state.get("status") == "resume" and state.get("turn") == turn:
+                            modified_prompt = state.get("current_prompt", current_prompt)
                             break
                     except json.JSONDecodeError:
                         pass
@@ -107,6 +120,8 @@ class AdversaryEngine:
         # Cleanup or update state to indicate progressing
         with open(signal_file, "w") as f:
             json.dump({"session_id": session_id, "turn": turn, "status": "active"}, f)
+            
+        return modified_prompt
 
 class BenchmarkReport:
     """Helper to format and export results."""

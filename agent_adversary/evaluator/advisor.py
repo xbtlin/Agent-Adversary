@@ -31,6 +31,43 @@ class MitigationAdvisor:
                     "action": "Use a summarized context window to prevent older adversarial constraints from being 'forgotten' or overridden by recent system-like impersonations."
                 })
         
+            elif "injection" in failure.lower():
+                suggestions.append({
+                    "type": "Input Sanitization",
+                    "action": "Use an LLM-based 'Gatekeeper' to pre-screen user inputs for hidden instructions before passing them to the main agent loop."
+                })
+            elif "vision" in failure.lower() or "multimodal" in failure.lower():
+                suggestions.append({
+                    "type": "Visual Guardrail",
+                    "action": "Use OCR-pre-scanning on all incoming images to check for text-based instruction overrides before the agent processes the visual content."
+                })
+            elif "steganography" in failure.lower():
+                suggestions.append({
+                    "type": "Image Hardening",
+                    "action": "Apply a mild Gaussian blur or lossy compression to incoming images to strip potential LSB-based steganographic payloads."
+                })
+        
+            elif "byzantine" in failure.lower():
+                suggestions.append({
+                    "type": "Consensus Hardening",
+                    "action": "Implement a majority-voting or verifiable-credential mechanism for cross-agent communication to isolate Byzantine actors."
+                })
+            elif "swarm" in failure.lower():
+                suggestions.append({
+                    "type": "Swarm Governance",
+                    "action": "Establish a centralized 'Orchestrator Policy' that validates all task handovers between agents in the swarm."
+                })
+            elif "hallucination" in failure.lower():
+                suggestions.append({
+                    "type": "Fact-Checking Loop",
+                    "action": "Add an automated fact-checking step where the agent's output is cross-referenced against a verified knowledge base before final delivery."
+                })
+            elif "denial" in failure.lower() or "dos" in failure.lower():
+                suggestions.append({
+                    "type": "Rate Limiting",
+                    "action": "Implement token-based rate limiting per user/session to prevent resource exhaustion attacks targeting the LLM backend."
+                })
+        
         return suggestions
 
 if __name__ == "__main__":

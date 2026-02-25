@@ -8,7 +8,7 @@ class OpenClawConnector(BaseConnector):
     Directly interfaces with OpenClaw sessions via the 'openclaw' CLI.
     Enables native benchmarking of OpenClaw-based agents.
     """
-    def __init__(self, session_key: str):
+    def __init__(self, session_key: str = "adversary-test"):
         self.session_key = session_key
         self.history = []
 

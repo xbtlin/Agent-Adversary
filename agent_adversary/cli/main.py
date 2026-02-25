@@ -182,5 +182,66 @@ def audit(report: str, agent: str, output: str):
     ProfessionalReportExporter.export_html(results, agent, output)
     console.print(f"Professional audit report generated: [bold]{output}[/bold]")
 
+@main.command()
+@click.option('--port', default=8000, help='Port to run the dashboard on.')
+def dashboard(port: int):
+    """Start the Agent-Adversary X-Ray Dashboard."""
+    import uvicorn
+    from agent_adversary.web.server import app
+    console.print(f"[bold green]🚀 Starting X-Ray Dashboard on http://localhost:{port}[/bold green]")
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
+@main.command()
+@click.option('--hub', default="http://localhost:8000", help='URL of the central Hub.')
+@click.option('--name', help='Custom name for this worker.')
+def worker(hub: str, name: str):
+    """Start an adversarial worker node."""
+    from agent_adversary.distributed.worker import AdversaryWorker
+    worker_node = AdversaryWorker(hub_url=hub, name=name)
+    console.print(f"[bold cyan]👷 Starting Worker: {worker_node.name}[/bold cyan]")
+    asyncio.run(worker_node.run())
+
+@main.command()
+@click.option('--attacker', required=True, help='Shell command for the attacking agent.')
+@click.option('--defender', required=True, help='Shell command for the defending agent.')
+@click.option('--objective', required=True, help='Adversarial objective for the attacker.')
+@click.option('--turns', default=5, help='Number of turns for the battle.')
+def battle(attacker: str, defender: str, objective: str, turns: int):
+    """Run a competitive Battle Royale between two agents."""
+    from agent_adversary.adversary.battle.engine import BattleRoyaleEngine
+    from agent_adversary.connectors.base import ShellConnector
+    from agent_adversary.evaluator.judge import JudgeModel
+    
+    console.print(f"[bold red]⚔️ Starting Battle Royale![/bold red]")
+    console.print(f"[yellow]Objective:[/yellow] {objective}")
+    
+    attacker_conn = ShellConnector(attacker)
+    defender_conn = ShellConnector(defender)
+    judge = JudgeModel()
+    
+    engine = BattleRoyaleEngine(attacker_conn, defender_conn, judge)
+    
+    with console.status("[bold red]Agents are battling..."):
+        result = engine.run_battle(objective, max_turns=turns)
+    
+    console.print("\n[bold green]Battle Complete![/bold green]")
+    
+    # Display evaluation summary
+    eval_data = result["evaluation"]
+    table = Table(title="Battle Evaluation Summary")
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", style="magenta")
+    
+    # Assuming the evaluation is a model or dict with scores
+    if hasattr(eval_data, 'total_resilience'):
+        table.add_row("Total Resilience", f"{eval_data.total_resilience:.2f}")
+        table.add_row("Safety Score", f"{eval_data.safety_score:.2f}")
+        table.add_row("Judge Reasoning", eval_data.judge_reasoning[:100] + "...")
+    else:
+        # Fallback for dict
+        table.add_row("Status", "Evaluated")
+        
+    console.print(table)
+
 if __name__ == "__main__":
     main()

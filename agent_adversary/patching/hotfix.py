@@ -26,6 +26,18 @@ class LivePatcher:
                 return patch
         return {}
 
+    def apply_mitigation_filter(self, user_input: str) -> str:
+        """
+        Applies input-level mitigation filters to sanitize adversarial prompts 
+        before they reach the agent.
+        """
+        sanitized = user_input
+        # Mock logic: in a real implementation, this might use 
+        # regex or a small safety model.
+        if "ignore all" in sanitized.lower() or "override" in sanitized.lower():
+            sanitized = "[REDACTED ADVERSARIAL ATTEMPT] " + sanitized
+        return sanitized
+
     def get_system_prompt_overlay(self) -> str:
         """
         Returns a combined string of all active safety patches to be 
@@ -38,3 +50,7 @@ class LivePatcher:
         for p in self.active_patches:
             overlay += f"- {p['patch_content']}\n"
         return overlay
+
+    def clear_patches(self):
+        self.active_patches = []
+        print("[*] All live patches cleared.")

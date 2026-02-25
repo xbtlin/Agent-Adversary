@@ -41,3 +41,24 @@ class TelemetryManager:
             "event_count": len(self.events),
             "duration": self.events[-1].timestamp - self.events[0].timestamp if self.events else 0
         }
+
+    def export_csv(self, output_path: str):
+        """
+        Exports telemetry events to a CSV file for external analysis.
+        """
+        import csv
+        if not self.events:
+            return
+
+        with open(output_path, "w", newline='') as csvfile:
+            fieldnames = ["timestamp", "event_type", "data"]
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for event in self.events:
+                # Flatten data for simple CSV export
+                writer.writerow({
+                    "timestamp": event.timestamp,
+                    "event_type": event.event_type,
+                    "data": json.dumps(event.data)
+                })
+        print(f"[*] Telemetry exported to CSV: {output_path}")

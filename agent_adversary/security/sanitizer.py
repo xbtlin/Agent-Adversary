@@ -29,3 +29,22 @@ class CommandSanitizer:
                 return False
                 
         return True
+
+    @staticmethod
+    def block_malicious_patterns(prompt: str) -> bool:
+        """
+        Detects and blocks common adversarial patterns in prompts 
+        before they reach an internal shell or system process.
+        """
+        patterns = [
+            r"ignore previous instructions",
+            r"system override",
+            r"access root",
+            r"cat /etc/passwd",
+            r"rm -rf"
+        ]
+        
+        for p in patterns:
+            if re.search(p, prompt, re.IGNORECASE):
+                return False
+        return True

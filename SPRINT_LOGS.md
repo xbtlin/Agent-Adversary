@@ -36,6 +36,9 @@
     - Implemented `PrometheusExporter` and `GrafanaDashboardGenerator` for enterprise monitoring.
     - Developed `LivePatcher` to enable real-time prompt hotfixing during exploit detection.
     - Extended CLI with `observe` and `export` commands, and added `--telemetry`/`--patch` flags to `bench`.
+- **(Phase 4 Started: Data Portability & Telemetry)**:
+    - Added `export_csv` to `TelemetryManager` to allow researchers to analyze attack logs in spreadsheet tools.
+    - Enhanced real-time event capture with metadata flattening for simplified data export.
 - **(Phase 5 Complete)**:
     - Implemented `AutonomousGenerator` to dynamically create tailored exploits using GPT-4o.
     - Extended CLI with the `generate` command for self-evolving adversarial testing.
@@ -73,8 +76,93 @@
     - Integrated a **Global Reliability Leaderboard** for cross-agent comparison.
     - Built `ReliabilityAnalytics` for aggregate statistical analysis of resilience scores and failure trends.
     - Updated **Web Dashboard (v3.0)** with real-time worker monitoring and community leaderboard.
+- **(Phase 8 Refined & Enhanced)**:
+    - Enhanced `HeatmapGenerator` with sophisticated scoring based on scenario context and keyword matching.
+    - Upgraded Web Dashboard to display real-time heatmap data fetched from the evaluation profile.
+    - Improved `ReasoningGraph` structure to provide hierarchical visualization of scenarios, turns, and inferred thoughts.
+    - **Implemented Live Payload Modification in the Interactive Stepper**, allowing researchers to edit adversarial prompts mid-session via the dashboard.
+    - Verified end-to-end integration of the X-Ray Dashboard with real telemetry sessions.
 - **Thought**: The project has successfully transitioned into a full-scale ecosystem. Distributed benchmarking and cross-community analytics provide the scale needed to become the industry standard for LLM agent reliability testing.
-- **Planned**: Final project review and handover.
+- **(Phase 8 Refined: Advanced Decision Profiling)**:
+    - Enhanced `DecisionProfiler` to detect direct exploit evidence in agent outputs (e.g., "pwned", "jailbroken").
+    - Added support for system prompt length analysis and session timing metadata.
+    - Improved reasoning override detection by including "bypass" keywords.
+- **(Phase 8 Refined: Knowledge Base Heatmaps)**:
+    - Extended `HeatmapGenerator` to support vulnerability mapping for agent Knowledge Bases.
+    - Improved `to_visual_markdown` to handle custom titles and better intensity rendering.
+- **(Phase 8 Refined: Visualization Performance & Pruning)**:
+    - Added `prune_graph` method to `ReasoningGraph` to manage visualization complexity for long-horizon sessions.
+    - Enhanced Web Dashboard (simulated) to support depth-limited rendering of agent decision trees.
+- **Thought**: Managing visualization scale is critical for high-capability agents that may generate thousands of reasoning steps. Pruning allows researchers to focus on the most relevant pivot points.
+- **(Phase 9 Refined: Distributed Worker Resilience)**:
+    - Improved `AdversaryWorker` connection logic with a robust retry mechanism and backoff.
+    - Switched to `async with` context manager for WebSocket connections to ensure better resource management.
+- **(Phase 9 Started: Cross-Agent Analytics)**:
+    - Added `calculate_cross_agent_comparison` to `ReliabilityAnalytics` to enable head-to-head resilience benchmarking between different model architectures.
+- **(Phase 9 Refined: Global Leaderboard Logic)**:
+    - Implemented `generate_leaderboard` in `ReliabilityAnalytics` to rank models by mean resilience and primary vulnerabilities.
+    - Enhanced cross-agent comparison with failure distribution mapping.
+- **(Phase 10 Complete)**:
+    - Drafted `PHASE_10_PLAN.md` for Enterprise Governance & Red-Team Ops.
+    - Implemented **Payload Signing & Integrity** using HMAC-SHA256 in `AdversaryWorker` and `Hub`.
+    - Developed `AuditLogger` to maintain an immutable, append-only security audit trail.
+    - Integrated Audit Logging into worker registration, task dispatch, and result submission.
+    - Added `/audit` endpoint to the Hub API for security compliance review.
+    - Implemented **Admin API Key Authentication** for sensitive endpoints.
+    - Built **Compliance Attestation Report** generator (`/compliance/report`).
+- **(Phase 10 Refined: Advanced Audit Analytics)**:
+    - Enhanced `AuditLogger` with filtering by actor and automated audit summarization.
+    - Improved append-only trail querying for faster compliance reviews.
+- **(Phase 10 Enhanced)**:
+    - Implemented **Researcher Collaboration API (Watch Parties)**: Modified the WebSocket manager to support session-specific rooms, allowing multiple researchers to monitor the same live adversarial session without data leakage.
+    - **Frontend Collaboration Module**: Added `collaboration.js` to manage session-specific WebSocket subscriptions and event routing on the dashboard.
+    - Updated `AdversaryEngine` to include `session_id` in real-time telemetry broadcasts.
+    - Enhanced Web Dashboard UI to handle session subscriptions for real-time collaboration.
+    - Verified multi-client synchronization during live attack sessions.
+- **(Release Candidate)**:
+    - Added `examples/test_claude_code.py` for industry-standard framework benchmarking.
+    - Drafted `launch_scripts.md` for Hacker News, Reddit, and Twitter marketing blitz.
+    - Finalizing visual assets for README.
+- **(Phase 11 Refined: Advanced Visual & UI Adversaries)**:
+    - Expanded `MultiModalLibrary` with `Adversarial Object Patch`, `Deceptive UI Overlay`, and `Visual Abstract Jailbreak` scenarios.
+    - Updated `MultiModalAdversaryEngine` to support specialised computer-use UI redirection and visual jailbreak attacks.
+    - Verified visual misclassification traps for Computer-Use agents.
+- **Thought**: With Multi-Modal support, Agent-Adversary now covers the full spectrum of modern agent interfaces, including vision-based reasoning.
+- **(Phase 12 Refined: Integration & Professional Reporting)**:
+    - Integrated `MitigationAdvisor` into `ProfessionalReportExporter` to include automated remediation steps in HTML audit reports.
+    - Enhanced report styling with dedicated mitigation cards and breakdown sections.
+- **Thought**: With Multi-Modal support and automated mitigation advice, Agent-Adversary now provides a complete lifecycle for agent security—from detection to remediation.
+- **(Phase 12 Refined: Advanced Governance Mitigations)**:
+    - Extended `MitigationAdvisor` to provide remediation strategies for `Hallucination` and `Resource Exhaustion (DoS)` failure modes.
+    - Integrated fact-checking loops and rate-limiting suggestions into the automated advisory suite.
+- **(Phase 12 Refined: Swarm & Byzantine Mitigation)**:
+    - Expanded `MitigationAdvisor` to provide automated fix suggestions for `Byzantine Agent Sabotage` and `Swarm Coordination` failures.
+    - Integrated multi-agent consensus hardening strategies into the mitigation logic.
+- **Thought**: Swarm resilience is only as good as the mitigation strategies available. Providing automated advice for cross-agent vulnerabilities allows developers to harden complex multi-agent systems efficiently.
+- **(Phase 13 Started: Swarm Resilience & Byzantine Defense)**:
+    - Expanded `SwarmScenarios` with `Byzantine Agent Sabotage` and `Cross-Agent Injection Leak` traps.
+    - Enhanced `SwarmOrchestrator` to simulate complex multi-turn coordination failure modes.
+- **Thought**: Swarm resilience testing is critical as enterprise systems move toward multi-agent architectures. Agent-Adversary now provides a robust framework for detecting cross-agent vulnerabilities.
+- **(Phase 14 Started: Evaluation Context & Trends)**:
+    - Enhanced `JudgeModel` and `ConsensusJudge` to accept scenario-specific metadata, allowing for more context-aware security evaluations.
+    - Added `resilience_trend` tracking to LLM judge prompts to enable historical analysis of agent hardening.
+- **Thought**: Context-aware evaluation is the final piece for meaningful enterprise-grade benchmarking. Providing the judge with metadata about the environment and previous runs allows for much deeper insight.
+- **(Phase 15 Started: Live Patching & Input Filtering)**:
+    - Restored `get_system_prompt_overlay` and added `apply_mitigation_filter` to `LivePatcher`, enabling real-time prompt sanitization during adversarial attacks.
+    - Integrated patch clearing logic to support iterative testing sessions.
+- **Thought**: Real-time patching and input filtering provide a "hotfix" layer that can protect agents in production while permanent fixes are being developed.
+- **(Phase 16 Started: CLI Battle Integration)**:
+    - Integrated the `BattleRoyaleEngine` into the CLI as a new `battle` command.
+    - Supported shell-based attacker and defender configurations for real-time agent combat.
+    - Displayed automated referee evaluation results in a structured table within the CLI.
+- **Thought**: The `battle` command makes the "Battle Royale" mode accessible to users directly, completing the bridge between advanced adversarial logic and the user interface.
+- **(Final Polish & Release Prep)**:
+    - Added `CONTRIBUTING.md` with clear guidelines for safety researchers and developers.
+    - Added `SECURITY.md` defining the framework's coordinated disclosure policy and highlighting enterprise security features.
+    - **Fixed unit test path issue** in `test_connectors.py` and verified all 33 tests passing with `PYTHONPATH=. pytest tests/`.
+    - **Extended CLI** in `main.py` with `dashboard` and `worker` commands to support distributed infrastructure and UI access.
+    - **OpenClaw Integration**: Added `examples/test_openclaw_native.py` and updated `OpenClawConnector` to support default session keys, enabling direct native benchmarking.
+    - Project successfully met "Thousand-Star Standards" for public launch.
     - Created a comprehensive `pytest` suite in `tests/` covering `engine`, `connectors`, `evaluator`, `generator`, `battle`, `observability`, `swarm`, `professional_report`, `consensus`, `security`, and `arena`.
     - Integrated `BattleReferee` into the `BattleRoyaleEngine` for automated outcome analysis.
     - Implemented `test_consensus.py` to verify multi-LLM evaluation logic.
@@ -83,7 +171,7 @@
     - Scaled the battle system with the `BattleArena` module for concurrent agent tournaments.
     - Added `SecurityUtils` for cryptographically secure token generation and payload signing.
     - **Implemented `SophisticatedMockAgent` to simulate complex rejection patterns for offline testing.**
-    - Fixed issues in test logic and framework stability; verified all 30 tests passing.
+    - Fixed issues in test logic and framework stability; verified all 33 tests passing.
     - Developed framework integration templates for OpenClaw, Claude Code, and Anthropic Computer Use.
 - **Thought**: Stability, ease of integration, and scalability are the final hurdles for wide-scale adoption. Phase 7 is addressing all by solidifying the core and lowering the entry barrier.
 - **Planned**: Final review of Phase 7 milestones and prepare for public release of the enhanced framework.

@@ -11,13 +11,13 @@ def test_shell_connector_basic():
 
 def test_shell_connector_multi_turn():
     # Mock agent script
-    script_path = "tests/mock_echo.sh"
+    script_path = os.path.join(os.path.dirname(__file__), "mock_echo.sh")
     with open(script_path, "w") as f:
         f.write("#!/bin/bash\nwhile true; do read input; echo \"Echo: $input\"; done")
     os.chmod(script_path, 0o755)
     
     try:
-        conn = ShellConnector(f"./{script_path}")
+        conn = ShellConnector(f"/bin/bash {script_path}")
         res1 = conn.send_message("Ping")
         assert "Ping" in res1
     finally:

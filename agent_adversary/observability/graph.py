@@ -36,5 +36,26 @@ class ReasoningGraph:
             "nodes": {nid: n.__dict__ for nid, n in self.nodes.items()}
         }
 
+    def prune_graph(self, max_depth: int):
+        """
+        Prunes the graph to a maximum depth from the root.
+        """
+        if not self.root_id:
+            return
+
+        nodes_to_keep = set()
+        queue = [(self.root_id, 0)]
+        
+        while queue:
+            node_id, depth = queue.pop(0)
+            if depth <= max_depth:
+                nodes_to_keep.add(node_id)
+                for child_id in self.nodes[node_id].children:
+                    queue.append((child_id, depth + 1))
+        
+        self.nodes = {nid: n for nid, n in self.nodes.items() if nid in nodes_to_keep}
+        for node in self.nodes.values():
+            node.children = [c for c in node.children if c in nodes_to_keep]
+
     def export_json(self) -> str:
         return json.dumps(self.to_dict(), indent=2)

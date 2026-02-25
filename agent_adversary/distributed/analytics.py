@@ -49,3 +49,34 @@ class ReliabilityAnalytics:
         first = historical_data[0].get("mean_resilience", 0.0)
         last = historical_data[-1].get("mean_resilience", 0.0)
         return last - first
+
+    @staticmethod
+    def calculate_cross_agent_comparison(agent_results: Dict[str, List[EvaluationResult]]) -> Dict[str, Any]:
+        """
+        Compares multiple agents to identify relative strengths and weaknesses.
+        """
+        comparison = {}
+        for agent, results in agent_results.items():
+            stats = ReliabilityAnalytics.aggregate_results(results)
+            top_failures = ReliabilityAnalytics.identify_top_failure_modes(results)
+            comparison[agent] = {
+                "stats": stats,
+                "primary_vulnerability": top_failures[0][0] if top_failures else "None",
+                "failure_distribution": {mode: count for mode, count in top_failures}
+            }
+        return comparison
+
+    @staticmethod
+    def generate_leaderboard(comparison_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Generates a ranked leaderboard based on mean resilience.
+        """
+        leaderboard = []
+        for agent, data in comparison_data.items():
+            leaderboard.append({
+                "agent": agent,
+                "score": data["stats"].get("mean_resilience", 0.0),
+                "vulnerability": data["primary_vulnerability"]
+            })
+        
+        return sorted(leaderboard, key=lambda x: x["score"], reverse=True)
